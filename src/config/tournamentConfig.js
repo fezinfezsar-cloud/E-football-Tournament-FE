@@ -5,18 +5,21 @@ export const TOURNAMENT_CONFIG = {
   eventDate: "October 15, 2026",
   eventTime: "09:00 AM IST Onwards",
   venue: "South Block, VAST",
-  registrationFee: 30,
+  registrationFee: 50,
   currency: "₹",
   maxParticipants: 32,
   upiId: "techfest.efootball@upi",
   contactPhone: "+91 9074268400",
   contactEmail: "tl24btec0127@vidyaacademy.ac.in",
-  prizePool: "₹750",
-  prizeDescription: "Total Cash Prize Pool of ₹750 for 1st and 2nd place winners.",
+  prizePool: "₹1,400",
+  prizeDescription: "Total Cash Prize Pool of ₹1,400 with cash prizes for 1st Place (₹1,000) and 2nd Place (₹400) winners.",
   prizeBreakdown: [
-    { rank: "1st Place (Champion)", prize: "₹500 Cash Prize" },
-    { rank: "2nd Place (Runner Up)", prize: "₹250 Cash Prize" }
+    { rank: "1st Place (Champion)", prize: "₹1,000 Cash Prize" },
+    { rank: "2nd Place (Runner Up)", prize: "₹400 Cash Prize" }
   ],
+  maxPossibleCollection: 1600,
+  totalPrizeMoney: 1400,
+  eventExpensesBuffer: 200,
   gameDetails: {
     title: "eFootball 2026 Mobile",
     publisher: "Konami",

@@ -26,7 +26,8 @@ import {
   AlertCircle,
   Smartphone,
   CreditCard,
-  Save
+  Save,
+  Trophy
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -275,7 +276,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* TOURNAMENT CONFIG DETAILS HEADER */}
-        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+        <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 text-xs">
           <div>
             <span className="text-zinc-500 uppercase font-bold block text-[10px]">Tournament Name</span>
             <span className="font-bold text-[#FFD600]">{TOURNAMENT_CONFIG.tournamentName}</span>
@@ -291,6 +292,14 @@ const AdminDashboard = () => {
           <div>
             <span className="text-zinc-500 uppercase font-bold block text-[10px]">Platform</span>
             <span className="font-bold text-white">Mobile Only</span>
+          </div>
+          <div>
+            <span className="text-zinc-500 uppercase font-bold block text-[10px]">Entry Fee</span>
+            <span className="font-extrabold text-[#FFD600]">₹{TOURNAMENT_CONFIG.registrationFee}</span>
+          </div>
+          <div>
+            <span className="text-zinc-500 uppercase font-bold block text-[10px]">Prize Pool</span>
+            <span className="font-extrabold text-[#FFD600]">{TOURNAMENT_CONFIG.prizePool}</span>
           </div>
           <div>
             <span className="text-zinc-500 uppercase font-bold block text-[10px]">Max Participants</span>
@@ -365,6 +374,86 @@ const AdminDashboard = () => {
 
         </div>
 
+        {/* PRIZE POOL & FINANCIAL COLLECTION OVERVIEW */}
+        <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-zinc-800">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#FFD600]/10 border border-[#FFD600]/30 flex items-center justify-center text-[#FFD600] shrink-0">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-bold text-white tracking-wide">
+                  Prize Pool & Financial Collection Overview
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  Transparent breakdown of entry fee collection versus allocated tournament prizes
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-400">Prize Funding:</span>
+              {(stats.approvedCount || 0) * (TOURNAMENT_CONFIG.registrationFee || 50) >= 1400 ? (
+                <span className="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Prize Pool Fully Covered
+                </span>
+              ) : (
+                <span className="px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  In Progress: ₹{(stats.approvedCount || 0) * (TOURNAMENT_CONFIG.registrationFee || 50)} / ₹1,400 needed
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+              <span className="text-zinc-500 uppercase font-bold block text-[10px]">Actual Confirmed Collection</span>
+              <div className="text-2xl font-bold font-display text-emerald-400">
+                ₹{(stats.approvedCount || 0) * (TOURNAMENT_CONFIG.registrationFee || 50)}
+              </div>
+              <p className="text-[11px] text-zinc-500">
+                {stats.approvedCount || 0} confirmed seats × ₹{TOURNAMENT_CONFIG.registrationFee || 50}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+              <span className="text-zinc-500 uppercase font-bold block text-[10px]">Maximum Possible Collection</span>
+              <div className="text-2xl font-bold font-display text-white">
+                ₹{32 * (TOURNAMENT_CONFIG.registrationFee || 50)}
+              </div>
+              <p className="text-[11px] text-zinc-500">
+                Full 32 participants × ₹{TOURNAMENT_CONFIG.registrationFee || 50} entry fee
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+              <span className="text-zinc-500 uppercase font-bold block text-[10px]">Total Prize Money</span>
+              <div className="text-2xl font-bold font-display text-[#FFD600]">
+                {TOURNAMENT_CONFIG.prizePool}
+              </div>
+              <p className="text-[11px] text-zinc-500">
+                1st Place: ₹1,000 • 2nd Place: ₹400 (Cash only)
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-1">
+              <span className="text-zinc-500 uppercase font-bold block text-[10px]">Event Expense Reserve</span>
+              <div className="text-2xl font-bold font-display text-zinc-300">
+                ₹200
+              </div>
+              <p className="text-[11px] text-zinc-500">
+                Remaining buffer at full capacity (₹1,600 − ₹1,400)
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 text-[11px] text-zinc-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <span>• <strong>Notice:</strong> Cash prizes are awarded for <strong>1st place (₹1,000)</strong> and <strong>2nd place (₹400)</strong> only. No 3rd place prizes or medals.</span>
+            <span className="text-zinc-500 shrink-0">32 Max Capacity Enforced</span>
+          </div>
+        </div>
+
         {/* PAYMENT SETTINGS SECTION */}
         <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-zinc-800">
@@ -381,11 +470,17 @@ const AdminDashboard = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-400">Currently Active:</span>
-              <span className="px-3 py-1 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-xs font-bold text-[#FFD600]">
-                {activeUpiId || 'Not Configured'}
-              </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FFD600]/10 border border-[#FFD600]/30 text-xs">
+                <span className="text-zinc-400 font-semibold">Entry Fee:</span>
+                <span className="font-extrabold text-[#FFD600]">₹{TOURNAMENT_CONFIG.registrationFee}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-400">Currently Active:</span>
+                <span className="px-3 py-1 rounded-lg bg-zinc-950 border border-zinc-800 font-mono text-xs font-bold text-[#FFD600]">
+                  {activeUpiId || 'Not Configured'}
+                </span>
+              </div>
             </div>
           </div>
 

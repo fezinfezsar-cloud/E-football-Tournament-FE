@@ -451,7 +451,7 @@ const TournamentRegistrationFlow = () => {
                 <li><strong>Participant Capacity:</strong> 32 Participant Seats Maximum.</li>
                 <li><strong>Match Format:</strong> 10-minute matches (5 mins per half). Draw matches go into Extra Time & Penalties.</li>
                 <li><strong>Reporting Time:</strong> Participants must report at least 15 minutes before their scheduled slot at {TOURNAMENT_CONFIG.venue}.</li>
-                <li><strong>Payment Fee:</strong> Registration fee of ₹{TOURNAMENT_CONFIG.registrationFee} is non-refundable.</li>
+                <li><strong>Payment Fee:</strong> Registration fee of ₹{tournamentInfo?.registrationFee || TOURNAMENT_CONFIG.registrationFee} is non-refundable.</li>
                 <li><strong>Prize Pool:</strong> {TOURNAMENT_CONFIG.prizeDescription}</li>
                 <li><strong>Proof of Payment:</strong> Authentic payment screenshot with transaction reference is strictly required. Fake screenshots will lead to permanent disqualification.</li>
                 <li><strong>Rule 1 (Max Team Strength):</strong> Total team strength must be less than or equal to 3200 (≤ 3200). Teams with strength &gt; 3200 are not permitted.</li>
@@ -735,14 +735,14 @@ const TournamentRegistrationFlow = () => {
                       </span>
                       <div className="p-2.5 rounded-xl bg-white shadow-xl">
                         <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`upi://pay?pa=${activeUpiId || tournamentInfo?.upiId}&pn=${encodeURIComponent(TOURNAMENT_CONFIG.tournamentName)}&am=30&cu=INR&tn=${encodeURIComponent('MINI MAYHEM Registration')}`)}`}
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`upi://pay?pa=${activeUpiId || tournamentInfo?.upiId}&pn=${encodeURIComponent(TOURNAMENT_CONFIG.tournamentName)}&am=${tournamentInfo?.registrationFee || TOURNAMENT_CONFIG.registrationFee}&cu=INR&tn=${encodeURIComponent('MINI MAYHEM Registration')}`)}`}
                           alt="Tournament UPI Payment QR Code"
                           className="w-36 h-36 mx-auto block"
                         />
                       </div>
                       <div className="text-[11px] text-zinc-400">
                         <span>Preset Amount: </span>
-                        <strong className="text-[#FFD600] font-bold">₹30</strong>
+                        <strong className="text-[#FFD600] font-bold">₹{tournamentInfo?.registrationFee || TOURNAMENT_CONFIG.registrationFee}</strong>
                         <span> • GPay / PhonePe / Paytm</span>
                       </div>
                     </div>
@@ -755,13 +755,13 @@ const TournamentRegistrationFlow = () => {
                         </span>
                         <ol className="text-xs text-zinc-300 space-y-2 list-decimal pl-4 leading-relaxed">
                           <li>Open Google Pay, PhonePe, Paytm, or BHIM.</li>
-                          <li>Scan the QR code or transfer <strong className="text-[#FFD600]">₹30</strong> to <span className="text-white font-mono font-bold break-all">{activeUpiId || tournamentInfo?.upiId}</span>.</li>
+                          <li>Scan the QR code or transfer <strong className="text-[#FFD600]">₹{tournamentInfo?.registrationFee || TOURNAMENT_CONFIG.registrationFee}</strong> to <span className="text-white font-mono font-bold break-all">{activeUpiId || tournamentInfo?.upiId}</span>.</li>
                           <li>Take a clear screenshot showing the <strong>Transaction ID / UTR Number</strong>.</li>
                           <li>Upload the payment screenshot below for admin verification.</li>
                         </ol>
                       </div>
                       <a
-                        href={`upi://pay?pa=${activeUpiId || tournamentInfo?.upiId}&pn=${encodeURIComponent(TOURNAMENT_CONFIG.tournamentName)}&am=30&cu=INR&tn=${encodeURIComponent('MINI MAYHEM Registration')}`}
+                        href={`upi://pay?pa=${activeUpiId || tournamentInfo?.upiId}&pn=${encodeURIComponent(TOURNAMENT_CONFIG.tournamentName)}&am=${tournamentInfo?.registrationFee || TOURNAMENT_CONFIG.registrationFee}&cu=INR&tn=${encodeURIComponent('MINI MAYHEM Registration')}`}
                         className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-[#FFD600] flex items-center justify-center gap-2 border border-zinc-700 transition-colors"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -839,7 +839,7 @@ const TournamentRegistrationFlow = () => {
                       Payment Screenshot <span className="text-[#FFD600]">* (Mandatory)</span>
                     </label>
                     <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-                      Upload proof of ₹{TOURNAMENT_CONFIG.registrationFee} payment showing transaction ID / UTR. <span className="text-zinc-300 font-semibold">Payment screenshots are kept private and verified only by admins.</span>
+                      Upload proof of ₹{tournamentInfo?.registrationFee || TOURNAMENT_CONFIG.registrationFee} payment showing transaction ID / UTR. <span className="text-zinc-300 font-semibold">Payment screenshots are kept private and verified only by admins.</span>
                     </p>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-zinc-800 text-zinc-300 border border-zinc-700 uppercase shrink-0">

@@ -160,6 +160,20 @@ const HomePage = () => {
                   </li>
                 ))}
               </ul>
+              <div className="mt-5 pt-3.5 border-t border-zinc-800/80 text-[11px] text-zinc-400 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span>Prize Policy:</span>
+                  <span className="font-bold text-white">Cash prizes for 1st & 2nd place only</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Max Pool Cap:</span>
+                  <span className="text-[#FFD600]">₹1,600 collection (32 seats @ ₹50)</span>
+                </div>
+                <div className="flex items-center justify-between text-zinc-500">
+                  <span>Event Reserve:</span>
+                  <span>₹200 allocated for tournament expenses</span>
+                </div>
+              </div>
             </div>
 
             {/* Card 2 */}

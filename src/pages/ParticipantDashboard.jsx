@@ -414,7 +414,7 @@ const ParticipantDashboard = () => {
                     Upload Corrected Payment Screenshot
                   </h4>
                   <p className="text-xs text-zinc-400">
-                    Please make sure your new screenshot clearly displays the UTR / Transaction Reference Number and the correct fee amount.
+                    Please make sure your new screenshot clearly displays the UTR / Transaction Reference Number and the correct fee amount (₹{TOURNAMENT_CONFIG.registrationFee}).
                   </p>
 
                   {resubmitError && (
