@@ -9,7 +9,7 @@ const AdminLoginPage = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('admin@techfest.com');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,7 +18,8 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
       setError('Please provide admin email and password.');
       return;
     }
@@ -26,11 +27,18 @@ const AdminLoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      await adminLogin(email, password);
+      await adminLogin(trimmedEmail, password);
       showToast('Admin authentication successful!', 'success');
       navigate('/admin/dashboard');
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid administrator credentials.';
+      let msg = 'Invalid administrator credentials.';
+      if (err.response?.data?.message) {
+        msg = err.response.data.message;
+      } else if (err.code === 'ERR_NETWORK' || !err.response) {
+        msg = 'Unable to connect to backend server. Please verify the Render backend is active and VITE_API_URL is configured in Netlify.';
+      } else if (err.response?.status >= 500) {
+        msg = err.response.data?.message || 'Server configuration error. Please check Render deployment logs.';
+      }
       setError(msg);
       showToast(msg, 'error');
     } finally {
