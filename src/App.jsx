@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -23,10 +24,11 @@ import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <Router>
-          <div className="flex flex-col min-h-screen bg-[#09090b] text-white">
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthProvider>
+          <Router>
+            <div className="flex flex-col min-h-screen bg-[#09090b] text-white">
             <Navbar />
             <main className="flex-1">
               <Routes>
@@ -75,6 +77,7 @@ function App() {
         </Router>
       </AuthProvider>
     </ToastProvider>
+  </ErrorBoundary>
   );
 }
 

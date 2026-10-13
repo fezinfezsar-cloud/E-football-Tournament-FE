@@ -27,7 +27,10 @@ import {
   Smartphone,
   CreditCard,
   Save,
-  Trophy
+  Trophy,
+  ExternalLink,
+  RefreshCw,
+  ImageOff
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -57,29 +60,53 @@ const AdminDashboard = () => {
   const [screenshotUrl, setScreenshotUrl] = useState('');
   const [loadingScreenshot, setLoadingScreenshot] = useState(false);
   const [screenshotError, setScreenshotError] = useState('');
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const [imageKey, setImageKey] = useState(0);
+
+  const fetchScreenshotUrl = (reg) => {
+    if (!reg) return;
+    const publicId = reg.cloudinaryPublicId || reg.paymentScreenshot;
+    if (!publicId) {
+      setScreenshotUrl('');
+      setScreenshotError('No payment screenshot has been uploaded for this participant.');
+      setLoadingScreenshot(false);
+      setImageLoading(false);
+      setImageLoadError(false);
+      return;
+    }
+
+    setLoadingScreenshot(true);
+    setScreenshotError('');
+    setImageLoadError(false);
+    setImageLoading(true);
+
+    API.get(`/admin/registrations/${reg._id}/screenshot?t=${Date.now()}`)
+      .then((res) => {
+        setScreenshotUrl(res.data.url || '');
+        setImageKey((prev) => prev + 1);
+      })
+      .catch((err) => {
+        console.error('Error fetching admin screenshot URL:', err);
+        const msg = err.response?.data?.message || 'Could not generate secure viewing link for screenshot.';
+        setScreenshotError(msg);
+        setScreenshotUrl('');
+      })
+      .finally(() => {
+        setLoadingScreenshot(false);
+      });
+  };
 
   useEffect(() => {
-    if (selectedReg && (selectedReg.cloudinaryPublicId || selectedReg.paymentScreenshot)) {
-      setLoadingScreenshot(true);
-      setScreenshotError('');
-      API.get(`/admin/registrations/${selectedReg._id}/screenshot`)
-        .then((res) => {
-          setScreenshotUrl(res.data.url);
-        })
-        .catch((err) => {
-          console.error('Error fetching admin screenshot URL:', err);
-          const msg = err.response?.data?.message || 'Could not generate secure viewing link for screenshot.';
-          setScreenshotError(msg);
-          setScreenshotUrl('');
-        })
-        .finally(() => {
-          setLoadingScreenshot(false);
-        });
+    if (selectedReg) {
+      fetchScreenshotUrl(selectedReg);
     } else {
       setScreenshotUrl('');
       setScreenshotError('');
+      setImageLoadError(false);
+      setImageLoading(true);
     }
-  }, [selectedReg]);
+  }, [selectedReg?._id]);
   
   // Rejection Modal State
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -660,10 +687,12 @@ const AdminDashboard = () => {
                           {/* View Modal */}
                           <button
                             onClick={() => setSelectedReg(reg)}
-                            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors"
-                            title="View Full Details & Screenshot"
+                            className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer border border-zinc-700/80"
+                            title="View Payment Screenshot & Registration Details"
+                            aria-label="View Payment Screenshot"
                           >
-                            <Eye className="w-4 h-4 text-[#FFD600]" />
+                            <Eye className="w-3.5 h-3.5 text-[#FFD600]" />
+                            <span className="hidden sm:inline">Inspect</span>
                           </button>
 
                           {/* Quick Approve */}
@@ -787,9 +816,14 @@ const AdminDashboard = () => {
 
                 {/* Uploaded Payment Screenshot Section */}
                 <div className="space-y-3 border-t border-zinc-800 pt-4">
-                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
-                    Uploaded Payment Screenshot Proof (Private):
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
+                      Uploaded Payment Screenshot Proof (Private):
+                    </span>
+                    <span className="text-[10px] text-zinc-400">
+                      Private Admin Authorization Required
+                    </span>
+                  </div>
 
                   {loadingScreenshot ? (
                     <div className="p-8 rounded-xl bg-zinc-950 border border-zinc-800 text-center text-zinc-400 flex flex-col items-center justify-center gap-2">
@@ -797,31 +831,116 @@ const AdminDashboard = () => {
                       <span className="text-xs font-semibold">Generating secure viewing token...</span>
                     </div>
                   ) : screenshotError ? (
-                    <div className="p-4 rounded-xl bg-red-950/30 border border-red-900/50 text-red-400 text-xs text-center">
-                      {screenshotError}
+                    <div className="p-6 rounded-xl bg-red-950/30 border border-red-900/50 text-center space-y-3">
+                      <div className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-400">
+                        <AlertCircle className="w-5 h-5" />
+                      </div>
+                      <p className="text-xs text-red-300 font-medium">
+                        {screenshotError}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => fetchScreenshotUrl(selectedReg)}
+                        className="px-4 py-2 rounded-xl bg-[#FFD600] hover:bg-[#FFE033] text-black text-xs font-extrabold inline-flex items-center gap-1.5 transition-all shadow-yellow-glow cursor-pointer"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        Retry Generating Token
+                      </button>
                     </div>
                   ) : screenshotUrl ? (
-                    <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-center">
-                      <a
-                        href={screenshotUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-block relative group"
-                      >
-                        <img
-                          src={screenshotUrl}
-                          alt="Payment Screenshot Proof"
-                          className="max-h-80 mx-auto rounded-lg border border-zinc-700 shadow-xl object-contain hover:opacity-95 transition-opacity"
-                        />
-                        <span className="mt-2 text-xs text-[#FFD600] font-bold flex items-center justify-center gap-1">
-                          <ExternalLink className="w-3.5 h-3.5" />
-                          Click to open image full size in new tab (Signed Cloudinary URL)
-                        </span>
-                      </a>
+                    <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 flex flex-col items-center justify-center min-h-[220px]">
+                      {/* Image Loading Spinner */}
+                      {imageLoading && !imageLoadError && (
+                        <div className="py-12 flex flex-col items-center justify-center gap-2 text-zinc-400">
+                          <div className="w-7 h-7 border-2 border-[#FFD600] border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-xs font-medium">Loading high-resolution payment screenshot...</span>
+                        </div>
+                      )}
+
+                      {/* Image Loading Error State */}
+                      {imageLoadError && (
+                        <div className="p-6 rounded-xl bg-red-950/30 border border-red-900/50 text-center space-y-3 w-full">
+                          <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto text-red-400">
+                            <ImageOff className="w-5 h-5" />
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold text-white">Payment Screenshot Failed to Load</p>
+                            <p className="text-xs text-zinc-400 max-w-md mx-auto">
+                              The payment screenshot could not be displayed. The secure link may have expired or a network issue occurred.
+                            </p>
+                          </div>
+                          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => fetchScreenshotUrl(selectedReg)}
+                              className="px-4 py-2 rounded-xl bg-[#FFD600] hover:bg-[#FFE033] text-black text-xs font-extrabold flex items-center gap-1.5 transition-all shadow-yellow-glow cursor-pointer"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5" />
+                              Retry Loading Screenshot
+                            </button>
+                            <a
+                              href={screenshotUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold flex items-center gap-1.5 border border-zinc-700"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Open Image in New Tab
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Render Image with Appropriate Sizing */}
+                      <img
+                        key={imageKey}
+                        src={screenshotUrl}
+                        alt={`Payment Screenshot Proof - ${selectedReg.registrationId}`}
+                        onLoad={() => {
+                          setImageLoading(false);
+                          setImageLoadError(false);
+                        }}
+                        onError={() => {
+                          setImageLoading(false);
+                          setImageLoadError(true);
+                        }}
+                        className={`max-w-full max-h-[80vh] w-auto h-auto mx-auto rounded-lg border border-zinc-700/80 shadow-2xl object-contain transition-opacity duration-300 ${
+                          imageLoading || imageLoadError ? 'hidden' : 'block'
+                        }`}
+                      />
+
+                      {/* Image Action Bar */}
+                      {!imageLoading && !imageLoadError && (
+                        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 w-full border-t border-zinc-800/80 pt-3 text-xs">
+                          <span className="text-[11px] text-zinc-400 font-mono">
+                            Format: {selectedReg.cloudinaryMetadata?.format?.toUpperCase() || 'IMAGE'} • Authenticated Delivery
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => fetchScreenshotUrl(selectedReg)}
+                              className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              title="Refresh Signed Link"
+                            >
+                              <RefreshCw className="w-3 h-3 text-[#FFD600]" />
+                              Refresh Token
+                            </button>
+                            <a
+                              href={screenshotUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3.5 py-1.5 rounded-lg bg-[#FFD600]/10 hover:bg-[#FFD600]/20 border border-[#FFD600]/40 text-[#FFD600] font-bold text-xs flex items-center gap-1.5 transition-colors"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              Open Image in New Tab
+                            </a>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="p-6 rounded-xl bg-zinc-950 border border-zinc-800 text-center text-zinc-500 text-xs">
-                      No payment screenshot uploaded yet.
+                      No payment screenshot uploaded yet for this registration.
                     </div>
                   )}
                 </div>
@@ -842,7 +961,7 @@ const AdminDashboard = () => {
                       <a
                         href={selectedReg.gamePlanScreenshotUrl || selectedReg.gamePlanScreenshot}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="inline-block relative group"
                       >
                         <img
